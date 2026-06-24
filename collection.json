@@ -1,0 +1,1420 @@
+{
+  "info": {
+    "_postman_id": "c3b71b01-77ae-4d0e-bcf4-3e3a5311078d",
+    "name": "Test dummyjson",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38907786"
+  },
+  "item": [
+    {
+      "name": "Auth - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const userSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"username\", \"email\", \"firstName\", \"lastName\", \"gender\", \"image\", \"accessToken\", \"refreshToken\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 1,\r",
+              "        },\r",
+              "        \"username\": { \"type\": \"string\" },\r",
+              "        \"email\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"email\"\r",
+              "        },\r",
+              "        \"firstName\": { \"type\": \"string\" },\r",
+              "        \"lastName\": { \"type\": \"string\" },\r",
+              "        \"gender\": { \r",
+              "            \"type\": \"string\",\r",
+              "            \"enum\": [\"male\", \"female\"]\r",
+              "        },\r",
+              "        \"image\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"uri\"\r",
+              "        },\r",
+              "        \"accessToken\": { \"type\": \"string\" },\r",
+              "        \"refreshToken\": { \"type\": \"string\" }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(userSchema);\r",
+              "});\r",
+              "\r",
+              "//Сохраняем данные\r",
+              "if (pm.response.code === 200) {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"token\", jsonData.accessToken);\r",
+              "    pm.environment.set(\"userId\", jsonData.id);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"michaelw\",\r\n    \"password\": \"michaelwpass\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth - Invalid Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: статус 400 и текст ошибки корректны\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eql(\"Invalid credentials\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"emilys\",\r\n    \"password\": \"emilyspass111\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get current auth user - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const userSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"username\", \"email\", \"firstName\", \"lastName\", \"gender\", \"image\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": {\r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 1,\r",
+              "        },\r",
+              "        \"username\": { \"type\": \"string\" },\r",
+              "        \"email\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"email\"\r",
+              "        },\r",
+              "        \"firstName\": { \"type\": \"string\" },\r",
+              "        \"lastName\": { \"type\": \"string\" },\r",
+              "        \"gender\": { \r",
+              "            \"type\": \"string\",\r",
+              "            \"enum\": [\"male\", \"female\"]\r",
+              "        },\r",
+              "        \"image\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"uri\"\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(userSchema);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/me",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get current auth user + Cookie - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const userSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"username\", \"email\", \"firstName\", \"lastName\", \"gender\", \"image\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": {\r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 1,\r",
+              "        },\r",
+              "        \"username\": { \"type\": \"string\" },\r",
+              "        \"email\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"email\"\r",
+              "        },\r",
+              "        \"firstName\": { \"type\": \"string\" },\r",
+              "        \"lastName\": { \"type\": \"string\" },\r",
+              "        \"gender\": { \r",
+              "            \"type\": \"string\",\r",
+              "            \"enum\": [\"male\", \"female\"]\r",
+              "        },\r",
+              "        \"image\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"uri\"\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(userSchema);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/me",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get current auth user - Invalid without cookies",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: статус 401 и текст ошибки корректны\", function () {\r",
+              "    pm.response.to.have.status(401);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eql(\"Access Token is required\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true,
+        "disableCookies": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/me",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get a single cart by User ID - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const cartSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"carts\", \"total\", \"skip\", \"limit\"],\r",
+              "    \"properties\": {\r",
+              "        \"carts\": {\r",
+              "            \"type\": \"array\",\r",
+              "            \"items\": {\r",
+              "                \"required\": [\"id\", \"products\", \"total\", \"discountedTotal\", \"userId\", \"totalProducts\", \"totalQuantity\"],\r",
+              "                \"id\": { \r",
+              "                    \"type\": \"integer\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },        \r",
+              "                \"total\": { \r",
+              "                    \"type\": \"number\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },\r",
+              "                \"discountedTotal\": { \r",
+              "                    \"type\": \"number\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },\r",
+              "                \"userId\": { \r",
+              "                    \"type\": \"integer\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },\r",
+              "                \"totalProducts\": { \r",
+              "                    \"type\": \"integer\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },\r",
+              "                \"totalQuantity\": { \r",
+              "                    \"type\": \"integer\",\r",
+              "                    \"minimum\": 0,\r",
+              "                },\r",
+              "                \"products\": {\r",
+              "                    \"type\": \"array\",\r",
+              "                    \"items\": {\r",
+              "                        \"type\": \"object\",\r",
+              "                        \"required\": [\"id\", \"title\", \"price\", \"quantity\", \"total\", \"discountPercentage\", \"discountedTotal\", \"thumbnail\"],\r",
+              "                        \"properties\": {\r",
+              "                            \"id\": { \r",
+              "                                \"type\": \"integer\",\r",
+              "                                \"minimum\": 0,\r",
+              "                            },\r",
+              "                            \"title\": { \"type\": \"string\" },\r",
+              "                            \"price\": { \r",
+              "                                \"type\": \"number\",\r",
+              "                                \"minimum\": 0,\r",
+              "                            },\r",
+              "                            \"quantity\": { \r",
+              "                                \"type\": \"integer\",\r",
+              "                                \"minimum\": 1,\r",
+              "                            },\r",
+              "                            \"total\": { \r",
+              "                                \"type\": \"number\",\r",
+              "                                \"minimum\": 0,\r",
+              "                            },\r",
+              "                            \"discountPercentage\": { \r",
+              "                                \"type\": \"number\",\r",
+              "                                \"minimum\": 0,\r",
+              "                            },\r",
+              "                            \"discountedTotal\": { \r",
+              "                                \"type\": \"number\",\r",
+              "                                \"minimum\": 0,\r",
+              "                            },\r",
+              "                            \"thumbnail\": { \r",
+              "                                \"type\": \"string\", \r",
+              "                                \"format\": \"uri\"\r",
+              "                            }\r",
+              "                        }\r",
+              "                    }\r",
+              "                }\r",
+              "            }\r",
+              "        }, \r",
+              "        \"total\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        }, \r",
+              "        \"skip\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        }, \r",
+              "        \"limit\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(cartSchema);\r",
+              "});\r",
+              "\r",
+              "//Сохраняем данные\r",
+              "if (pm.response.code === 200) {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"cartId\", jsonData.carts[0].id);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true,
+        "disableCookies": false
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/user/{{userId}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "user",
+            "{{userId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get a single cart by User ID - Invalid User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: статус 404 и текст ошибки корректны\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "    //Использован Regex на общий случай, чтобы можно было поиграть с ID\r",
+              "    var errorRegex = /^User with id '\\d+' not found$/;\r",
+              "    pm.expect(jsonData.message).to.match(errorRegex);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true,
+        "disableCookies": false
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/user/1111111",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "user",
+            "1111111"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get a single cart by Cart ID - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const cartSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"products\", \"total\", \"discountedTotal\", \"userId\", \"totalProducts\", \"totalQuantity\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },        \r",
+              "        \"total\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"discountedTotal\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"userId\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalProducts\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalQuantity\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"products\": {\r",
+              "            \"type\": \"array\",\r",
+              "            \"items\": {\r",
+              "                \"type\": \"object\",\r",
+              "                \"required\": [\"id\", \"title\", \"price\", \"quantity\", \"total\", \"discountPercentage\", \"discountedTotal\", \"thumbnail\"],\r",
+              "                \"properties\": {\r",
+              "                    \"id\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"title\": { \"type\": \"string\" },\r",
+              "                    \"price\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"quantity\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 1,\r",
+              "                    },\r",
+              "                    \"total\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountPercentage\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountedTotal\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"thumbnail\": { \r",
+              "                        \"type\": \"string\", \r",
+              "                        \"format\": \"uri\"\r",
+              "                    }\r",
+              "                }\r",
+              "            }\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(cartSchema);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true,
+        "disableCookies": false
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/{{cartId}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get a single cart by Cart ID - Invalid Cart Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: статус 404 и текст ошибки корректны\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "    //Использован Regex на общий случай, чтобы можно было поиграть с ID\r",
+              "    var errorRegex = /^Cart with id '\\d+' not found$/;\r",
+              "    pm.expect(jsonData.message).to.match(errorRegex);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true,
+        "disableCookies": false
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/2222222",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "2222222"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add a new cart - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const cartSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"products\", \"total\", \"discountedTotal\", \"userId\", \"totalProducts\", \"totalQuantity\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },        \r",
+              "        \"total\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"discountedTotal\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"userId\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalProducts\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalQuantity\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"products\": {\r",
+              "            \"type\": \"array\",\r",
+              "            \"items\": {\r",
+              "                \"type\": \"object\",\r",
+              "                \"required\": [\"id\", \"title\", \"price\", \"quantity\", \"total\", \"discountPercentage\", \"discountedPrice\", \"thumbnail\"],\r",
+              "                \"properties\": {\r",
+              "                    \"id\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"title\": { \"type\": \"string\" },\r",
+              "                    \"price\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"quantity\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 1,\r",
+              "                    },\r",
+              "                    \"total\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountPercentage\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountedPrice\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"thumbnail\": { \r",
+              "                        \"type\": \"string\", \r",
+              "                        \"format\": \"uri\"\r",
+              "                    }\r",
+              "                }\r",
+              "            }\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 201 Created\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(cartSchema);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Бизнес-логика: корзина принадлежит именно нашему пользователю\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    var expectedUserId = Number(pm.environment.get(\"userId\"));\r",
+              "    \r",
+              "    pm.expect(jsonData.userId).to.eql(expectedUserId);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Бизнес-логика: количество товаров соответствует отправленному\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    var expectedProducts = [\r",
+              "      {\r",
+              "        \"id\": 144,\r",
+              "        \"quantity\": 4\r",
+              "      },\r",
+              "      {\r",
+              "        \"id\": 98,\r",
+              "        \"quantity\": 1\r",
+              "      }\r",
+              "    ];\r",
+              "\r",
+              "    expectedProducts.forEach(function(expectedItem) {\r",
+              "\r",
+              "        var actualItem = jsonData.products.find(p => p.id === expectedItem.id);\r",
+              "\r",
+              "        pm.expect(actualItem).to.not.be.undefined;\r",
+              "\r",
+              "        pm.expect(actualItem.quantity).to.eql(expectedItem.quantity, \r",
+              "            `Для товара ID ${expectedItem.id} ожидали количество ${expectedItem.quantity}, но бэкенд вернул ${actualItem.quantity}`\r",
+              "        );\r",
+              "    });\r",
+              "});\r",
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"userId\": {{userId}},\r\n    \"products\": [\r\n      {\r\n        \"id\": 144,\r\n        \"quantity\": 4\r\n      },\r\n      {\r\n        \"id\": 98,\r\n        \"quantity\": 1\r\n      }\r\n    ]\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/add",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "add"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add a new cart - Invalid Body",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: сервер возвращает 400 при отсутствии ID товара\", function () {\r",
+              "    pm.response.to.have.status(400); \r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"userId\": {{userId}},\r\n    \"products\": [\r\n      {\r\n        \"quantity\": 4\r\n      }\r\n    ]\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/add",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "add"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update a cart - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const cartSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"products\", \"total\", \"discountedTotal\", \"userId\", \"totalProducts\", \"totalQuantity\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },        \r",
+              "        \"total\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"discountedTotal\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"userId\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalProducts\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalQuantity\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"products\": {\r",
+              "            \"type\": \"array\",\r",
+              "            \"items\": {\r",
+              "                \"type\": \"object\",\r",
+              "                \"required\": [\"id\", \"title\", \"price\", \"quantity\", \"total\", \"discountPercentage\", \"discountedPrice\", \"thumbnail\"],\r",
+              "                \"properties\": {\r",
+              "                    \"id\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"title\": { \"type\": \"string\" },\r",
+              "                    \"price\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"quantity\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 1,\r",
+              "                    },\r",
+              "                    \"total\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountPercentage\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountedPrice\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"thumbnail\": { \r",
+              "                        \"type\": \"string\", \r",
+              "                        \"format\": \"uri\"\r",
+              "                    }\r",
+              "                }\r",
+              "            }\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(cartSchema);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Бизнес-логика: корзина принадлежит именно нашему пользователю\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    var expectedUserId = Number(pm.environment.get(\"userId\"));\r",
+              "    \r",
+              "    pm.expect(jsonData.userId).to.eql(expectedUserId);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Бизнес-логика: количество товаров соответствует отправленному\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    //В данном тестовом задании, не проверяем другие продукты - так как они явно случайные\r",
+              "    var expectedProducts = [\r",
+              "      {\r",
+              "        \"id\": 1,\r",
+              "        \"quantity\": 11\r",
+              "      },\r",
+              "    ];\r",
+              "\r",
+              "    expectedProducts.forEach(function(expectedItem) {\r",
+              "\r",
+              "        var actualItem = jsonData.products.find(p => p.id === expectedItem.id);\r",
+              "\r",
+              "        pm.expect(actualItem).to.not.be.undefined;\r",
+              "\r",
+              "        pm.expect(actualItem.quantity).to.eql(expectedItem.quantity, \r",
+              "            `Для товара ID ${expectedItem.id} ожидали количество ${expectedItem.quantity}, но бэкенд вернул ${actualItem.quantity}`\r",
+              "        );\r",
+              "    });\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"merge\": true,\r\n    \"products\": [\r\n      {\r\n        \"id\": 1,\r\n        \"quantity\": 11\r\n      }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/{{cartId}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update a cart - Invalid Body",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: сервер возвращает 400 при отсутствии списка товаров\", function () {\r",
+              "    pm.response.to.have.status(400); \r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"products11111\": [\r\n      {\r\n        \"id\": 1,\r\n        \"quantity\": 11\r\n      }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/{{cartId}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete a cart - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const cartSchema = {\r",
+              "    \"type\": \"object\",\r",
+              "    \"required\": [\"id\", \"products\", \"total\", \"discountedTotal\", \"userId\", \"totalProducts\", \"totalQuantity\", \"isDeleted\", \"deletedOn\"],\r",
+              "    \"properties\": {\r",
+              "        \"id\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },        \r",
+              "        \"total\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"discountedTotal\": { \r",
+              "            \"type\": \"number\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"userId\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalProducts\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"totalQuantity\": { \r",
+              "            \"type\": \"integer\",\r",
+              "            \"minimum\": 0,\r",
+              "        },\r",
+              "        \"isDeleted\": { \r",
+              "            \"type\": \"boolean\", \r",
+              "            \"const\": true\r",
+              "        }, \r",
+              "        \"deletedOn\": { \r",
+              "            \"type\": \"string\", \r",
+              "            \"format\": \"date-time\"\r",
+              "        },\r",
+              "        \"products\": {\r",
+              "            \"type\": \"array\",\r",
+              "            \"items\": {\r",
+              "                \"type\": \"object\",\r",
+              "                \"required\": [\"id\", \"title\", \"price\", \"quantity\", \"total\", \"discountPercentage\", \"discountedTotal\", \"thumbnail\"],\r",
+              "                \"properties\": {\r",
+              "                    \"id\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"title\": { \"type\": \"string\" },\r",
+              "                    \"price\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"quantity\": { \r",
+              "                        \"type\": \"integer\",\r",
+              "                        \"minimum\": 1,\r",
+              "                    },\r",
+              "                    \"total\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountPercentage\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"discountedTotal\": { \r",
+              "                        \"type\": \"number\",\r",
+              "                        \"minimum\": 0,\r",
+              "                    },\r",
+              "                    \"thumbnail\": { \r",
+              "                        \"type\": \"string\", \r",
+              "                        \"format\": \"uri\"\r",
+              "                    }\r",
+              "                }\r",
+              "            }\r",
+              "        }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Статус ответа 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные ответа - корректны\", function () {\r",
+              "    pm.response.to.have.jsonSchema(cartSchema);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Бизнес-логика: корзина принадлежит именно нашему пользователю\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    var expectedUserId = Number(pm.environment.get(\"userId\"));\r",
+              "    \r",
+              "    pm.expect(jsonData.userId).to.eql(expectedUserId);\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/{{cartId}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete a cart - Invalid Cart Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Негативный тест: статус 404 и текст ошибки корректны\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "\r",
+              "    var jsonData = pm.response.json();\r",
+              "    //Использован Regex на общий случай, чтобы можно было поиграть с ID\r",
+              "    var errorRegex = /^Cart with id '\\d+' not found$/;\r",
+              "    pm.expect(jsonData.message).to.match(errorRegex);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/carts/3333333333",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "carts",
+            "3333333333"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

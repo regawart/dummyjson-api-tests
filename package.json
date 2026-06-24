@@ -1,0 +1,12 @@
+{
+  "name": "dummyjson-api-tests",
+  "version": "1.0.0",
+  "description": "API tests for dummyjson.com",
+  "main": "index.js",
+  "scripts": {
+    "test": "newman run collection.json -e environment.json"
+  },
+  "dependencies": {
+    "newman": "^6.1.3"
+  }
+}
